@@ -46,7 +46,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
 
     final today = _summary!['today'] as Map<String, dynamic>;
-    final balance = num.parse(_summary!['balance'].toString()).toDouble();
+    final balance = (_summary!['balance'] as double);
     final monthly = _summary!['monthly'] as List<dynamic>;
 
     return RefreshIndicator(
@@ -61,14 +61,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
           Row(children: [
             Expanded(child: _SummaryCard(
               label: "Today's Income",
-              amount: num.parse(today['income'].toString()).toDouble(),
+              amount: today['income'] as double,
               color: Colors.green,
               icon: Icons.arrow_downward,
             )),
             const SizedBox(width: 12),
             Expanded(child: _SummaryCard(
               label: "Today's Expense",
-              amount: num.parse(today['expense'].toString()).toDouble(),
+              amount: today['expense'] as double,
               color: Colors.red,
               icon: Icons.arrow_upward,
             )),
@@ -145,7 +145,7 @@ class _CashFlowChart extends StatelessWidget {
     for (final row in monthly) {
       final m = row['month'] as String;
       data.putIfAbsent(m, () => {'income': 0, 'expense': 0});
-      data[m]![row['type'] as String] = num.parse(row['total'].toString()).toDouble();
+      data[m]![row['type'] as String] = row['total'] as double;
     }
 
     final months = data.keys.toList()..sort();

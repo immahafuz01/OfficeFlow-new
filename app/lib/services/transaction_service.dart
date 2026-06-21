@@ -2,6 +2,15 @@ import 'package:dio/dio.dart';
 import '../config/api.dart';
 import 'auth_service.dart';
 
+// Coerce any value that should be a double (pg may send it as a String).
+double _d(dynamic v) => num.parse(v.toString()).toDouble();
+
+// Normalise a raw transaction map so all numeric fields are proper doubles.
+Map<String, dynamic> _normTx(Map<String, dynamic> tx) => {
+      ...tx,
+      'amount': _d(tx['amount']),
+    };
+
 class TransactionService {
   static Future<Dio> _client() async {
     final token = await AuthService.getToken();
@@ -14,16 +23,29 @@ class TransactionService {
   static Future<Map<String, dynamic>> getSummary() async {
     final dio = await _client();
     final res = await dio.get('/reports/summary');
-    return res.data as Map<String, dynamic>;
+    final d = res.data as Map<String, dynamic>;
+    final today = d['today'] as Map<String, dynamic>;
+    final monthly = (d['monthly'] as List<dynamic>).map((r) {
+      final row = r as Map<String, dynamic>;
+      return {...row, 'total': _d(row['total'])};
+    }).toList();
+    return {
+      'today': {'income': _d(today['income']), 'expense': _d(today['expense'])},
+      'balance': _d(d['balance']),
+      'monthly': monthly,
+    };
   }
 
-  static Future<List<dynamic>> getTransactions({String? type, int limit = 20}) async {
+  static Future<List<Map<String, dynamic>>> getTransactions(
+      {String? type, int limit = 20}) async {
     final dio = await _client();
     final res = await dio.get('/transactions', queryParameters: {
       'type': type,
       'limit': limit,
     });
-    return res.data as List<dynamic>;
+    return (res.data as List<dynamic>)
+        .map((e) => _normTx(e as Map<String, dynamic>))
+        .toList();
   }
 
   static Future<Map<String, dynamic>> addTransaction({
@@ -45,7 +67,7 @@ class TransactionService {
       'note': note,
       'date': date,
     });
-    return res.data as Map<String, dynamic>;
+    return _normTx(res.data as Map<String, dynamic>);
   }
 
   static Future<void> deleteTransaction(int id) async {
