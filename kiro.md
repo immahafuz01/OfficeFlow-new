@@ -121,6 +121,12 @@ CLOUDINARY_API_SECRET=
 - Set up project folder structure
 - Initialized git and pushed to GitHub
 
+### 2026-06-21 — User & Role Management (MVP)
+- Backend: added `DELETE /users/:id` (admin-only, prevents self-deletion)
+- Flutter: created `UserService` (getUsers, updateRole, deleteUser)
+- Flutter: created `UsersScreen` — lists all users, role dropdown (disabled on self), delete with confirm dialog
+- Flutter: `HomeScreen` decodes JWT role on init; Users tab (5th) is only visible to admins
+
 ### 2026-06-21 — Invoicing & Billing (MVP)
 - Backend: added `GET /invoices/:id` and `DELETE /invoices/:id` to `invoices.js`
 - Flutter: created `InvoiceService` (getInvoices, addInvoice, updateStatus, deleteInvoice)

@@ -14,4 +14,12 @@ router.patch('/:id/role', auth, async (req, res) => {
   res.json(result.rows[0]);
 });
 
+router.delete('/:id', auth, async (req, res) => {
+  if (req.user.role !== 'admin') return res.status(403).json({ message: 'Forbidden' });
+  if (String(req.user.id) === String(req.params.id))
+    return res.status(400).json({ message: 'Cannot delete your own account' });
+  await db.query('DELETE FROM users WHERE id=$1', [req.params.id]);
+  res.json({ message: 'Deleted' });
+});
+
 module.exports = router;
