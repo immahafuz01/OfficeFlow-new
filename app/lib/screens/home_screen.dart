@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
 import 'dashboard_screen.dart';
 import 'transactions_screen.dart';
+import 'invoices_screen.dart';
 import 'login_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -37,7 +38,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final titles = ['Dashboard', 'Transactions'];
+    final titles = ['Dashboard', 'Transactions', 'Invoices'];
     return Scaffold(
       appBar: AppBar(
         title: Text(titles[_tab]),
@@ -54,6 +55,7 @@ class _HomeScreenState extends State<HomeScreen> {
         children: const [
           DashboardScreen(),
           TransactionsScreen(),
+          InvoicesScreen(),
         ],
       ),
       bottomNavigationBar: NavigationBar(
@@ -62,6 +64,7 @@ class _HomeScreenState extends State<HomeScreen> {
         destinations: const [
           NavigationDestination(icon: Icon(Icons.dashboard), label: 'Dashboard'),
           NavigationDestination(icon: Icon(Icons.receipt_long), label: 'Transactions'),
+          NavigationDestination(icon: Icon(Icons.description_outlined), label: 'Invoices'),
         ],
       ),
     );

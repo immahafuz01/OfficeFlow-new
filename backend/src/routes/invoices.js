@@ -20,10 +20,21 @@ router.post('/', auth, async (req, res) => {
   }
 });
 
+router.get('/:id', auth, async (req, res) => {
+  const result = await db.query('SELECT * FROM invoices WHERE id=$1', [req.params.id]);
+  if (!result.rows.length) return res.status(404).json({ message: 'Not found' });
+  res.json(result.rows[0]);
+});
+
 router.patch('/:id/status', auth, async (req, res) => {
   const { status } = req.body;
   const result = await db.query('UPDATE invoices SET status=$1 WHERE id=$2 RETURNING *', [status, req.params.id]);
   res.json(result.rows[0]);
+});
+
+router.delete('/:id', auth, async (req, res) => {
+  await db.query('DELETE FROM invoices WHERE id=$1', [req.params.id]);
+  res.json({ message: 'Deleted' });
 });
 
 module.exports = router;

@@ -121,6 +121,12 @@ CLOUDINARY_API_SECRET=
 - Set up project folder structure
 - Initialized git and pushed to GitHub
 
+### 2026-06-21 — Invoicing & Billing (MVP)
+- Backend: added `GET /invoices/:id` and `DELETE /invoices/:id` to `invoices.js`
+- Flutter: created `InvoiceService` (getInvoices, addInvoice, updateStatus, deleteInvoice)
+- Flutter: created `InvoicesScreen` with invoice list, status badge (tap to cycle: unpaid → paid → overdue), delete, and add bottom sheet
+- Flutter: wired Invoices as 3rd tab in `HomeScreen` (Dashboard / Transactions / Invoices)
+
 ---
 
 ## Notes & Decisions
