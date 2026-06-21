@@ -5,6 +5,7 @@ import 'dashboard_screen.dart';
 import 'transactions_screen.dart';
 import 'invoices_screen.dart';
 import 'reports_screen.dart';
+import 'parties_screen.dart';
 import 'users_screen.dart';
 import 'login_screen.dart';
 
@@ -62,12 +63,13 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final titles = ['Dashboard', 'Transactions', 'Invoices', 'Reports', if (_isAdmin) 'Users'];
+    final titles = ['Dashboard', 'Transactions', 'Invoices', 'Reports', 'Parties', if (_isAdmin) 'Users'];
     final screens = [
       const DashboardScreen(),
       const TransactionsScreen(),
       const InvoicesScreen(),
       const ReportsScreen(),
+      const PartiesScreen(),
       if (_isAdmin) const UsersScreen(),
     ];
     final destinations = [
@@ -75,8 +77,9 @@ class _HomeScreenState extends State<HomeScreen> {
       const NavigationDestination(icon: Icon(Icons.receipt_long), label: 'Transactions'),
       const NavigationDestination(icon: Icon(Icons.description_outlined), label: 'Invoices'),
       const NavigationDestination(icon: Icon(Icons.bar_chart), label: 'Reports'),
+      const NavigationDestination(icon: Icon(Icons.people_outline), label: 'Parties'),
       if (_isAdmin)
-        const NavigationDestination(icon: Icon(Icons.people_outline), label: 'Users'),
+        const NavigationDestination(icon: Icon(Icons.manage_accounts_outlined), label: 'Users'),
     ];
 
     // Clamp tab index in case admin status changes

@@ -55,6 +55,7 @@ class TransactionService {
     required String date,
     String account = 'cash',
     String? party,
+    int? partyId,
     String? note,
   }) async {
     final dio = await _client();
@@ -64,6 +65,7 @@ class TransactionService {
       'category': category,
       'account': account,
       'party': party,
+      'party_id': partyId,
       'note': note,
       'date': date,
     });

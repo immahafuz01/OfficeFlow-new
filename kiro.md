@@ -121,6 +121,16 @@ CLOUDINARY_API_SECRET=
 - Set up project folder structure
 - Initialized git and pushed to GitHub
 
+### 2026-06-21 — Party Ledger (MVP)
+- Backend: added `parties` table (name, phone, type, opening_balance, notes); added `party_id` FK to transactions via `migrate_parties.sql`
+- Backend: created `/api/v1/parties` route — CRUD + `GET /:id/ledger` (running balance per transaction)
+- Backend: updated transactions POST to accept `party_id`
+- Flutter: created `PartyService` (getParties, addParty, deleteParty, getLedger) — all numeric fields double-safe
+- Flutter: created `PartiesScreen` with balance list (color-coded), delete, and `AddPartySheet` (type, opening balance, phone, notes)
+- Flutter: created `PartyDetailScreen` — full ledger table with running balance column, opening balance row
+- Flutter: `AddTransactionSheet` now loads parties; shows party dropdown when parties exist, free-text fallback otherwise
+- Flutter: Parties tab added as 5th nav item (always visible); Users tab remains 6th for admins only
+
 ### 2026-06-21 — User & Role Management (MVP)
 - Backend: added `DELETE /users/:id` (admin-only, prevents self-deletion)
 - Flutter: created `UserService` (getUsers, updateRole, deleteUser)

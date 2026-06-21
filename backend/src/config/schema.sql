@@ -22,6 +22,17 @@ CREATE TABLE IF NOT EXISTS transactions (
   created_at TIMESTAMP DEFAULT NOW()
 );
 
+CREATE TABLE IF NOT EXISTS parties (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  phone VARCHAR(20),
+  type VARCHAR(10) NOT NULL DEFAULT 'customer' CHECK (type IN ('customer','vendor')),
+  opening_balance NUMERIC(12,2) NOT NULL DEFAULT 0,
+  notes TEXT,
+  created_by INTEGER REFERENCES users(id),
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
 -- Grant privileges to app user
 GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO officeflow;
 GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO officeflow;

@@ -27,12 +27,12 @@ router.get('/', auth, async (req, res) => {
 
 // POST /transactions
 router.post('/', auth, async (req, res) => {
-  const { type, amount, category, account = 'cash', party, note, date } = req.body;
+  const { type, amount, category, account = 'cash', party, party_id, note, date } = req.body;
   try {
     const result = await db.query(
-      `INSERT INTO transactions (type,amount,category,account,party,note,date,created_by)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *`,
-      [type, amount, category, account, party, note, date, req.user.id]
+      `INSERT INTO transactions (type,amount,category,account,party,party_id,note,date,created_by)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING *`,
+      [type, amount, category, account, party, party_id || null, note, date, req.user.id]
     );
     res.status(201).json(result.rows[0]);
   } catch (e) {

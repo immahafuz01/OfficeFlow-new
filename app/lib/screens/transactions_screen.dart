@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/transaction_service.dart';
+import '../services/party_service.dart';
 
 const _incomeCategories = ['Sales', 'Service', 'Investment', 'Loan', 'Other'];
 const _expenseCategories = ['Rent', 'Salary', 'Utilities', 'Supplies', 'Transport', 'Marketing', 'Other'];
@@ -161,6 +162,17 @@ class _AddTransactionSheetState extends State<_AddTransactionSheet> {
   DateTime _date = DateTime.now();
   bool _saving = false;
 
+  List<Map<String, dynamic>> _parties = [];
+  int? _selectedPartyId;
+
+  @override
+  void initState() {
+    super.initState();
+    PartyService.getParties().then((list) {
+      if (mounted) setState(() => _parties = list);
+    });
+  }
+
   List<String> get _categories =>
       _type == 'income' ? _incomeCategories : _expenseCategories;
 
@@ -168,12 +180,22 @@ class _AddTransactionSheetState extends State<_AddTransactionSheet> {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _saving = true);
     try {
+      // If a party is selected, use its name as the party text field too
+      final selectedParty = _selectedPartyId != null
+          ? _parties.firstWhere((p) => p['id'] == _selectedPartyId,
+              orElse: () => {})
+          : null;
+      final partyText = _selectedPartyId != null
+          ? (selectedParty?['name'] as String?)
+          : (_partyCtrl.text.isEmpty ? null : _partyCtrl.text);
+
       await TransactionService.addTransaction(
         type: _type,
         amount: double.parse(_amountCtrl.text),
         category: _category ?? _categories.first,
         account: _account,
-        party: _partyCtrl.text.isEmpty ? null : _partyCtrl.text,
+        party: partyText,
+        partyId: _selectedPartyId,
         note: _noteCtrl.text.isEmpty ? null : _noteCtrl.text,
         date: _date.toIso8601String().split('T').first,
       );
@@ -251,10 +273,28 @@ class _AddTransactionSheetState extends State<_AddTransactionSheet> {
               },
             ),
             const Divider(),
-            TextFormField(
-              controller: _partyCtrl,
-              decoration: const InputDecoration(labelText: 'Party / Customer (optional)', border: OutlineInputBorder()),
-            ),
+            // Party: dropdown if parties exist, else free text
+            if (_parties.isNotEmpty) ...[
+              DropdownButtonFormField<int?>(
+                value: _selectedPartyId,
+                decoration: const InputDecoration(
+                    labelText: 'Party (optional)', border: OutlineInputBorder()),
+                items: [
+                  const DropdownMenuItem(value: null, child: Text('— None —')),
+                  ..._parties.map((p) => DropdownMenuItem(
+                        value: p['id'] as int,
+                        child: Text('${p['name']} (${p['type']})'),
+                      )),
+                ],
+                onChanged: (v) => setState(() => _selectedPartyId = v),
+              ),
+            ] else ...[
+              TextFormField(
+                controller: _partyCtrl,
+                decoration: const InputDecoration(
+                    labelText: 'Party / Customer (optional)', border: OutlineInputBorder()),
+              ),
+            ],
             const SizedBox(height: 12),
             TextFormField(
               controller: _noteCtrl,
