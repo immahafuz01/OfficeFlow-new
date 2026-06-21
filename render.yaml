@@ -1,0 +1,25 @@
+databases:
+  - name: officeflow-db
+    databaseName: officeflow
+    user: officeflow
+    plan: free
+
+services:
+  - type: web
+    name: officeflow-backend
+    plan: free
+    runtime: node
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: sh start.sh
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: officeflow-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      - key: NODE_ENV
+        value: production
