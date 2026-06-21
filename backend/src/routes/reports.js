@@ -65,4 +65,38 @@ router.get('/profit-loss', auth, async (req, res) => {
   }
 });
 
+// GET /reports/daily?month=6&year=2026
+router.get('/daily', auth, async (req, res) => {
+  const { month, year } = req.query;
+  try {
+    const result = await db.query(
+      `SELECT date::TEXT, type, COALESCE(SUM(amount),0)::FLOAT AS total
+       FROM transactions
+       WHERE EXTRACT(MONTH FROM date)=$1 AND EXTRACT(YEAR FROM date)=$2
+       GROUP BY date, type ORDER BY date ASC`,
+      [month, year]
+    );
+    res.json(result.rows);
+  } catch (e) {
+    res.status(500).json({ message: e.message });
+  }
+});
+
+// GET /reports/categories?month=6&year=2026
+router.get('/categories', auth, async (req, res) => {
+  const { month, year } = req.query;
+  try {
+    const result = await db.query(
+      `SELECT category, type, COALESCE(SUM(amount),0)::FLOAT AS total
+       FROM transactions
+       WHERE EXTRACT(MONTH FROM date)=$1 AND EXTRACT(YEAR FROM date)=$2
+       GROUP BY category, type ORDER BY total DESC`,
+      [month, year]
+    );
+    res.json(result.rows);
+  } catch (e) {
+    res.status(500).json({ message: e.message });
+  }
+});
+
 module.exports = router;
