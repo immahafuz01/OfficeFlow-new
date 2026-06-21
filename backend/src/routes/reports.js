@@ -11,18 +11,18 @@ router.get('/summary', auth, async (req, res) => {
     const [todayRes, balanceRes, monthlyRes] = await Promise.all([
       // Today's totals
       db.query(
-        `SELECT type, COALESCE(SUM(amount),0) AS total
+        `SELECT type, COALESCE(SUM(amount),0)::FLOAT AS total
          FROM transactions WHERE date = $1 GROUP BY type`,
         [today]
       ),
       // All-time balance
       db.query(
-        `SELECT type, COALESCE(SUM(amount),0) AS total
+        `SELECT type, COALESCE(SUM(amount),0)::FLOAT AS total
          FROM transactions GROUP BY type`
       ),
       // Last 6 months monthly breakdown
       db.query(
-        `SELECT TO_CHAR(date,'YYYY-MM') AS month, type, COALESCE(SUM(amount),0) AS total
+        `SELECT TO_CHAR(date,'YYYY-MM') AS month, type, COALESCE(SUM(amount),0)::FLOAT AS total
          FROM transactions
          WHERE date >= NOW() - INTERVAL '6 months'
          GROUP BY month, type
@@ -53,7 +53,7 @@ router.get('/profit-loss', auth, async (req, res) => {
   const { month, year } = req.query;
   try {
     const result = await db.query(
-      `SELECT type, COALESCE(SUM(amount),0) AS total FROM transactions
+      `SELECT type, COALESCE(SUM(amount),0)::FLOAT AS total FROM transactions
        WHERE EXTRACT(MONTH FROM date)=$1 AND EXTRACT(YEAR FROM date)=$2 GROUP BY type`,
       [month, year]
     );
