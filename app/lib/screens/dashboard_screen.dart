@@ -12,6 +12,7 @@ class DashboardScreen extends StatefulWidget {
 class _DashboardScreenState extends State<DashboardScreen> {
   Map<String, dynamic>? _summary;
   bool _loading = true;
+  bool _slowLoad = false;   // shows "waking up" hint after 5s
   String? _error;
 
   @override
@@ -21,25 +22,50 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Future<void> _load() async {
-    setState(() { _loading = true; _error = null; });
+    setState(() { _loading = true; _error = null; _slowLoad = false; });
+
+    // After 5 seconds still loading → show the "server is waking up" hint
+    Future.delayed(const Duration(seconds: 5), () {
+      if (mounted && _loading) setState(() => _slowLoad = true);
+    });
+
     try {
       final data = await TransactionService.getSummary();
       setState(() => _summary = data);
     } catch (e) {
-      setState(() => _error = 'Failed to load data');
+      setState(() => _error = 'Could not reach the server.\nTap Retry — it may need a moment to wake up.');
     } finally {
-      setState(() => _loading = false);
+      setState(() { _loading = false; _slowLoad = false; });
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_loading) return const Center(child: CircularProgressIndicator());
+    if (_loading) {
+      return Center(
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          const CircularProgressIndicator(),
+          if (_slowLoad) ...[
+            const SizedBox(height: 20),
+            const Text(
+              'Server is waking up…\nThis takes up to 60s on first load.',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.grey, fontSize: 13),
+            ),
+          ],
+        ]),
+      );
+    }
     if (_error != null) {
       return Center(child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(_error!, style: const TextStyle(color: Colors.red)),
+          const Icon(Icons.wifi_off_outlined, size: 48, color: Colors.grey),
+          const SizedBox(height: 12),
+          Text(_error!,
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: Colors.red)),
+          const SizedBox(height: 12),
           TextButton(onPressed: _load, child: const Text('Retry')),
         ],
       ));

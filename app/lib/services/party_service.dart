@@ -1,6 +1,5 @@
 import 'package:dio/dio.dart';
-import '../config/api.dart';
-import 'auth_service.dart';
+import 'dio_client.dart';
 
 double _d(dynamic v) => num.parse(v.toString()).toDouble();
 
@@ -11,13 +10,7 @@ Map<String, dynamic> _normParty(Map<String, dynamic> p) => {
     };
 
 class PartyService {
-  static Future<Dio> _client() async {
-    final token = await AuthService.getToken();
-    return Dio(BaseOptions(
-      baseUrl: ApiConfig.baseUrl,
-      headers: {'Authorization': 'Bearer $token'},
-    ));
-  }
+  static Future<Dio> _client() => buildClient();
 
   static Future<List<Map<String, dynamic>>> getParties() async {
     final dio = await _client();

@@ -1,6 +1,5 @@
 import 'package:dio/dio.dart';
-import '../config/api.dart';
-import 'auth_service.dart';
+import 'dio_client.dart';
 
 // Coerce any value that should be a double (pg may send it as a String).
 double _d(dynamic v) => num.parse(v.toString()).toDouble();
@@ -12,13 +11,7 @@ Map<String, dynamic> _normTx(Map<String, dynamic> tx) => {
     };
 
 class TransactionService {
-  static Future<Dio> _client() async {
-    final token = await AuthService.getToken();
-    return Dio(BaseOptions(
-      baseUrl: ApiConfig.baseUrl,
-      headers: {'Authorization': 'Bearer $token'},
-    ));
-  }
+  static Future<Dio> _client() => buildClient();
 
   static Future<Map<String, dynamic>> getSummary() async {
     final dio = await _client();

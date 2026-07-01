@@ -1,6 +1,5 @@
 import 'package:dio/dio.dart';
-import '../config/api.dart';
-import 'auth_service.dart';
+import 'dio_client.dart';
 
 // Safely coerce a value to double
 double _d(dynamic v) => v == null ? 0.0 : num.parse(v.toString()).toDouble();
@@ -12,13 +11,7 @@ Map<String, dynamic> _norm(Map<String, dynamic> inv) => {
     };
 
 class InvoiceService {
-  static Future<Dio> _client() async {
-    final token = await AuthService.getToken();
-    return Dio(BaseOptions(
-      baseUrl: ApiConfig.baseUrl,
-      headers: {'Authorization': 'Bearer $token'},
-    ));
-  }
+  static Future<Dio> _client() => buildClient();
 
   /// List invoices. Optionally filter by [status] and/or [partyId].
   static Future<List<Map<String, dynamic>>> getInvoices({

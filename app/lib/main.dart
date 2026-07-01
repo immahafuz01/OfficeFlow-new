@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'screens/login_screen.dart';
 import 'screens/home_screen.dart';
 import 'services/auth_service.dart';
+import 'services/dio_client.dart' show navigatorKey;
 
 void main() {
   runApp(const OfficeFlowApp());
@@ -15,10 +16,16 @@ class OfficeFlowApp extends StatelessWidget {
     return MaterialApp(
       title: 'OfficeFlow',
       debugShowCheckedModeBanner: false,
+      navigatorKey: navigatorKey,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF1565C0)),
         useMaterial3: true,
       ),
+      // Named routes used by the 401 interceptor
+      routes: {
+        '/login': (_) => const LoginScreen(),
+        '/home':  (_) => const HomeScreen(),
+      },
       home: const _AuthGate(),
     );
   }
@@ -39,9 +46,12 @@ class _AuthGateState extends State<_AuthGate> {
       future: AuthService.getToken(),
       builder: (context, snapshot) {
         if (snapshot.connectionState != ConnectionState.done) {
-          return const Scaffold(body: Center(child: CircularProgressIndicator()));
+          return const Scaffold(
+              body: Center(child: CircularProgressIndicator()));
         }
-        return snapshot.data != null ? const HomeScreen() : const LoginScreen();
+        return snapshot.data != null
+            ? const HomeScreen()
+            : const LoginScreen();
       },
     );
   }
