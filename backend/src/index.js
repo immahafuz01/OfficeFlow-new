@@ -24,5 +24,26 @@ app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/parties', partyRoutes);
 
 app.get('/', (req, res) => res.json({ message: 'OfficeFlow API running' }));
+app.get('/health', (req, res) => res.json({ status: 'ok' }));
 
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+
+  // Keep Render free tier awake by pinging /health every 10 minutes.
+  // Render spins down after 15 min of inactivity — this prevents that.
+  const PING_INTERVAL = 10 * 60 * 1000; // 10 minutes
+  const SELF_URL = process.env.RENDER_EXTERNAL_URL
+    ? `${process.env.RENDER_EXTERNAL_URL}/health`
+    : `http://localhost:${PORT}/health`;
+
+  setInterval(async () => {
+    try {
+      const https = require('https');
+      const http  = require('http');
+      const client = SELF_URL.startsWith('https') ? https : http;
+      client.get(SELF_URL, (res) => {
+        res.resume(); // drain response
+      }).on('error', () => {}); // swallow errors silently
+    } catch (_) {}
+  }, PING_INTERVAL);
+});
