@@ -1,0 +1,22 @@
+name: Keep Alive
+
+# Ping the Render backend every 10 minutes to prevent free-tier sleep.
+# GitHub Actions cron minimum is every 5 minutes.
+on:
+  schedule:
+    - cron: '*/10 * * * *'   # every 10 minutes, 24/7
+  workflow_dispatch:          # allow manual trigger
+
+jobs:
+  ping:
+    name: Ping Render Backend
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping /health
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 90 \
+            https://officeflow-backend-nebe.onrender.com/health)
+          echo "Response status: $STATUS"
+          if [ "$STATUS" -ne 200 ]; then
+            echo "Warning: backend returned $STATUS"
+          fi
